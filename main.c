@@ -4,8 +4,12 @@
 
 int main() {
   FILE *f = fopen("README.md", "w");
+  char readme[100];
+  sprintf(readme, "# Ts is the best diary you ever did see.");
+  
+  fputs(readme, f);
 
-  printf("I love balls yo, jk frfr");
+  printf("This has gotta be the best way to do ts frfr\n");
   fclose(f);
   return 0;
 }
