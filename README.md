@@ -1,1 +1,0 @@
-# Ts is the best diary you ever did see.
