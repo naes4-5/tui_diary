@@ -25,7 +25,7 @@ void daily(FILE *f) {
 }
 
 FILE *mknote(const char *isDaily, const char *title) {
-  if(!strcmp("", title)) {
+  if (!strcmp("", title)) {
     fprintf(stderr, "Note must have a title\n");
     return NULL;
   }
