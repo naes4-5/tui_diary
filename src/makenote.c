@@ -18,20 +18,26 @@ int getmonth() {
 void daily(FILE *f) {
   time_t now = time(NULL);
   struct tm *t = localtime(&now);
-  
-  char *header;
-  strftime(header, 256, "%d/%m/%y @ %H:%M", t);
+
+  char *header = malloc(256);
+  strftime(header, 256, "*%d/%m/%y @ %H:%M*", t);
   fprintf(f, "%s\n\n", header);
 }
 
-void mknote(const char *isDaily) {
+FILE *mknote(const char *isDaily, const char *title) {
+  if(!strcmp("", title)) {
+    fprintf(stderr, "Note must have a title\n");
+    return NULL;
+  }
 
   char notedir[64];
-  snprintf(notedir, 64, "Diary/%s", months[getmonth()-1]);
+  snprintf(notedir, 64, "Diary/%s%s.md", months[getmonth() - 1], title);
 
-  FILE *f;
-  if (strcmp("daily", isDaily)) {
+  FILE *f = fopen(notedir, "w");
+  if (f != NULL && !strcmp("daily", isDaily)) {
     daily(f);
+  } else if (f == NULL) {
+    fprintf(stderr, "Error occurred: %s\n", strerror(errno));
   }
-  fclose(f);
+  return f;
 }
