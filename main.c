@@ -1,9 +1,10 @@
-#include "includes.h"
-#include "dirs.c"
+#include "src/daily.c"
+#include "src/dirs.c"
+#include "src/includes.h"
 
 int main() {
-  
-  int i = initdirs();
-  
+
+  initdirs();
+
   return 0;
 }
