@@ -12,7 +12,6 @@
     - Option to have them be dated or relevant to some other directory
 
 ## Commit planning
-- Make a way to create and modify the correct note. 
 
 3. Authentication system???
 

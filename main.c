@@ -2,7 +2,7 @@
 #include "src/includes.h"
 #include "src/makenote.c"
 
-void mkentry(FILE* note);
+void mkentry(FILE *note);
 
 int main() {
   initdirs();
@@ -13,11 +13,17 @@ int main() {
 }
 
 void mkentry(FILE *note) {
-  char entry[4096];
-  printf("Please write your entry below. Type 'enter' to terminate.\n\n");
-  fgets(entry, sizeof(entry), stdin);
+  size_t size = 4096;
+  char entry[size];
+  printf("Please write your entry below. Type '|' + 'enter' to terminate.\n\n");
+  char next;
+  int i;
+  for (i = 0; i < size && (next = getchar()) != '|'; ++i) {
+    entry[i] = next;
+  }
+  entry[i] = '\n';
+  entry[i+1] = '\0';
   fprintf(note, "%s\n", entry);
 }
 
-
-// yayayayayayya
+//new change bec git is being a bitch
