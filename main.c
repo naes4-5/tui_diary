@@ -18,3 +18,6 @@ void mkentry(FILE *note) {
   fgets(entry, sizeof(entry), stdin);
   fprintf(note, "%s\n", entry);
 }
+
+
+// yayayayayayya

@@ -13,9 +13,12 @@
 
 ## Commit planning
 - Make a way to create and modify the correct note. 
--> Take input and write it to file where the terminating character is '\n'
 
 3. Authentication system???
 
 #### Complete aspects
 - Directories relating to the current month
+-> Make sure the note is in the correct directory
+-> Get the date
+-> Add the time of creation at the top of the file
+Make a way to create and modify the correct note. -> Take input and write it to file where the terminating character is '\n'
