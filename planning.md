@@ -7,9 +7,12 @@
             - If it doesn't exist, make it
         - Check the date and go to the relevant month
     - Common formatting (Specified)
+    - Project notes functionality
 2. Accessing old entries
     - Create notes with metadata with the date
     - Option to have them be dated or relevant to some other directory
+3. Making the entire system a cli tool
+    - Adding flags that change functionality (new, daily, project-based)
 
 ## Commit planning
 

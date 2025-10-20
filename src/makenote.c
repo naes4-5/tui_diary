@@ -15,7 +15,7 @@ int getmonth() {
   return strtol(cmonth, NULL, 10);
 }
 
-void daily(FILE *f) {
+void dailyheader(FILE *f) {
   time_t now = time(NULL);
   struct tm *t = localtime(&now);
 
@@ -35,7 +35,7 @@ FILE *mknote(const char *isDaily, const char *title) {
 
   FILE *f = fopen(notedir, "w");
   if (f != NULL && !strcmp("daily", isDaily)) {
-    daily(f);
+    dailyheader(f);
   } else if (f == NULL) {
     fprintf(stderr, "Error occurred: %s\n", strerror(errno));
   }
