@@ -15,6 +15,9 @@
     - Adding flags that change functionality (new, daily, project-based)
 
 ## Commit planning
+- Accessing notes
+-> working within directories
+-> accessing and searching for individual files
 
 3. Authentication system???
 
