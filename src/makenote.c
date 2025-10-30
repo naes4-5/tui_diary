@@ -7,8 +7,10 @@ int getmonth() {
 
   char *cmonth = malloc(3);
   strftime(cmonth, 3, "%m", now);
-
-  return strtol(cmonth, NULL, 10);
+  int ret = strtol(cmonth, NULL, 10);
+  
+  free(cmonth);
+  return ret;
 }
 
 void dailyheader(FILE *f) {
@@ -18,6 +20,7 @@ void dailyheader(FILE *f) {
   char *header = malloc(256);
   strftime(header, 256, "*%d/%m/%y @ %H:%M*", t);
   fprintf(f, "%s\n\n", header);
+  free(header);
 }
 
 FILE *mknote(const char *isDaily, const char *title) {

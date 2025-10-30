@@ -9,6 +9,8 @@ int main() {
   FILE *note = mknote("daily", "thoughts");
   mkentry(note);
   fclose(note);
+  //DIR *dir;
+  
   return 0;
 }
 
