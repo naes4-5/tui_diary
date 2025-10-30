@@ -8,6 +8,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <stdbool.h>
 
 static const char *months[] = {"1.January/",  "2.February/",  "3.March/",
                                "4.April/",    "5.May/",       "6.June/",
