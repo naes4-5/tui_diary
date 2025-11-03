@@ -2,7 +2,7 @@
 
 1. Creating new entries
     - All to a common directory (per month) \
-            _Next 2 made erronious by dirinit_
+            _Next 2 made erroneous by dirinit()_
         - Check for relevant directory
             - If it doesn't exist, make it
         - Check the date and go to the relevant month
@@ -26,3 +26,10 @@ Making the entire system a cli tool
 -> Add the time of creation at the top of the file \
 Make a way to create and modify the correct note. -> Take input and write it to
 file where the terminating character is '\n' _ had to make the character '|' _
+
+= Most Recent Notes
+makenote.c(
+- Idk why there are warnings when freeing header (maybe I didn't check for NULL?)
+- I think I need to be checking more than I am actually doing logic, which I
+  guess makes sense, but now Idk how I got it working in the first place.
+) I'm gonna take a break a tho
