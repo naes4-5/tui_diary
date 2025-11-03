@@ -7,32 +7,37 @@
 void mkentry(FILE *note);
 void initcheck(void);
 
-int main() {
+int main(int argc, char *argv[]) {
+  bool daily = true;
   initcheck();
-  /*
-  initdirs();
-  FILE *note = mknote("daily", "thoughts");
+  FILE *note = mknote(daily, "thoughts");
+  if (!note) {
+    fprintf(stderr, "Error in opening, aborting.\n");
+    return 1;
+  }
   mkentry(note);
   fclose(note);
-  */
 
   return 0;
 }
 
 void mkentry(FILE *note) {
   size_t size = 4096;
-  char entry[size];
-  printf("Please write your entry below. Type '|' + 'enter' to terminate.\n\n");
-  char next;
-  int i;
-  for (i = 0; i < size && (next = getchar()) != '|'; ++i) {
-    entry[i] = next;
+  char *entry = malloc(size);
+  if (!entry) {
+    fprintf(stderr, "Error in allocation: %s\n", strerror(errno));
+    return;
   }
-  // I genuinely don't understand why I need to have this much fluff to include
-  // a newline on the note. It is way too much nonsense for all this.
-  entry[i] = '\n';
-  entry[i + 1] = '\0';
-  fprintf(note, "%s\n", entry);
+  printf("Please write your entry below. Type '|' + 'enter' to terminate.\n\n");
+  int next;
+  int i;
+  for (i = 0; i < size - 2 && (next = getchar()) != '|' && next != EOF; ++i) {
+    entry[i] = (char)next;
+  }
+  entry[i++] = '\n';
+  entry[i] = '\0';
+  fwrite(entry, sizeof(char), i, note);
+  free(entry);
 }
 
 void initcheck(void) {
