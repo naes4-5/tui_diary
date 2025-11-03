@@ -15,6 +15,10 @@ Making the entire system a cli tool
   - Adding flags that change functionality (new, daily, project-based)
 
 = Commit planning
+- Using as a cli tool
+-> using the args from argv to decide what I'm doing
+-> I'm only now realizing that this has probably lost sight of the orignal scope, but whatever. 
+
 - Accessing notes
 -> working within directories \
 -> accessing and searching for individual files
@@ -26,10 +30,3 @@ Making the entire system a cli tool
 -> Add the time of creation at the top of the file \
 Make a way to create and modify the correct note. -> Take input and write it to
 file where the terminating character is '\n' _ had to make the character '|' _
-
-= Most Recent Notes
-makenote.c(
-- Idk why there are warnings when freeing header (maybe I didn't check for NULL?)
-- I think I need to be checking more than I am actually doing logic, which I
-  guess makes sense, but now Idk how I got it working in the first place.
-) I'm gonna take a break a tho
