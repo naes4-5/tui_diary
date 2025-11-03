@@ -1,3 +1,3 @@
 #!/bin/bash
 
-gcc main.c -o main -fsanitize=address && ./main
+gcc main.c -o main -fsanitize=address -Werror && ./main

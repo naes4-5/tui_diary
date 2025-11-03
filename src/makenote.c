@@ -4,39 +4,55 @@
 int getmonth() {
   time_t fill = time(NULL);
   struct tm *now = localtime(&fill);
-
-  char *cmonth = malloc(3);
-  strftime(cmonth, 3, "%m", now);
-  int ret = strtol(cmonth, NULL, 10);
-  
-  free(cmonth);
-  return ret;
+  return now->tm_mon;
 }
 
-void dailyheader(FILE *f) {
+char *dailyheader() {
   time_t now = time(NULL);
   struct tm *t = localtime(&now);
 
   char *header = malloc(256);
-  strftime(header, 256, "*%d/%m/%y @ %H:%M*", t);
-  fprintf(f, "%s\n\n", header);
-  free(header);
+  strftime(header, 256, "*%d-%m-%y@%H:%M*", t);
+  return header;
 }
 
-FILE *mknote(const char *isDaily, const char *title) {
+FILE *mknote(bool daily, const char *title) {
   if (!strcmp("", title)) {
     fprintf(stderr, "Note must have a title\n");
     return NULL;
   }
 
-  char notedir[64];
-  snprintf(notedir, 64, "Diary/%s%s.md", months[getmonth() - 1], title);
+  const char *header = daily ? dailyheader() : NULL;
+  if (daily && header == NULL) {
+    fprintf(stderr, "Error in creating header\n");
+    return NULL;
+  }
+  char notedir[256];
+  
+  int written = snprintf(notedir, sizeof(notedir), "Diary/");
+  if (written < 0 || written >= sizeof(notedir)) {
+    free((void *)header);
+    return NULL;
+  }
+
+  if (header) {
+    written += snprintf(notedir + written, sizeof(notedir) - written, "%s", header);
+    if (written >= sizeof(notedir)) {
+      free((void *)header);
+      return NULL;
+    }
+  }
+
+  snprintf(notedir + written, sizeof(notedir) - written, "%s%s.typ", months[getmonth()], title);
 
   FILE *f = fopen(notedir, "w");
-  if (f != NULL && !strcmp("daily", isDaily)) {
-    dailyheader(f);
-  } else if (f == NULL) {
-    fprintf(stderr, "Error occurred: %s\n", strerror(errno));
+  if (!f) {
+    fprintf(stderr, "Error opening file: %s\n", strerror(errno));
+    return NULL;
   }
+  if (header) {
+    fprintf(f, "%s\n\n", header);
+  }
+  free((void *)header);
   return f;
 }
