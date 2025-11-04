@@ -15,9 +15,8 @@ Making the entire system a cli tool
   - Adding flags that change functionality (new, daily, project-based)
 
 = Commit planning
-- Using as a cli tool
--> using the args from argv to decide what I'm doing
--> I'm only now realizing that this has probably lost sight of the orignal scope, but whatever. 
+- Don't crate new notes when you don't need too
+-> Check to see if the note already exists 
 
 - Accessing notes
 -> working within directories \
@@ -30,3 +29,6 @@ Making the entire system a cli tool
 -> Add the time of creation at the top of the file \
 Make a way to create and modify the correct note. -> Take input and write it to
 file where the terminating character is '\n' _ had to make the character '|' _
+- Using as a cli tool
+-> using the args from argv to decide what I'm doing
+-> I'm only now realizing that this has probably lost sight of the orignal scope, but whatever. 
