@@ -3,41 +3,38 @@
 #include <linux/limits.h>
 #include <unistd.h>
 
-void mkentry(FILE *note);
+void mkentry(FILE *note, const char *entry);
 void initcheck(void);
 int initdirs();
 
 int main(int argc, char *argv[]) {
-  bool daily = true;
+  bool daily = false;
+  int in = 0;
+  char opts[argc-1];
+  for(int i = 1; i < argc; i++) {
+    if (*argv[i] == '-' && strlen(argv[i]) > 1) {
+      char arg = argv[i][1];
+      if (arg == 'd') {
+        daily = true;
+      } else if (arg == 'p') {
+        printf("for a project (to be implemented)\n");
+      }
+    }
+  }
   initcheck();
   FILE *note = mknote(daily, "thoughts");
   if (!note) {
     fprintf(stderr, "Error in opening, aborting.\n");
     return 1;
   }
-  mkentry(note);
+  mkentry(note, argv[argc-1]);
   fclose(note);
 
   return 0;
 }
 
-void mkentry(FILE *note) {
-  size_t size = 4096;
-  char *entry = malloc(size);
-  if (!entry) {
-    fprintf(stderr, "Error in allocation: %s\n", strerror(errno));
-    return;
-  }
-  printf("Please write your entry below. Type '|' + 'enter' to terminate.\n\n");
-  int next;
-  int i;
-  for (i = 0; i < size - 2 && (next = getchar()) != '|' && next != EOF; ++i) {
-    entry[i] = (char)next;
-  }
-  entry[i++] = '\n';
-  entry[i] = '\0';
-  fwrite(entry, sizeof(char), i, note);
-  free(entry);
+void mkentry(FILE *note, const char *entry) {
+  fprintf(note, "%s\n", entry);
 }
 
 void initcheck(void) {
