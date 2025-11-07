@@ -48,9 +48,9 @@ FILE *mknote(bool daily, const char *title) {
     return NULL;
   }
 
-  written += snprintf(notedir + written, sizeof(notedir) - written, "%s%s", months[getmonth() - 1], title);
+  written += snprintf(notedir + written, sizeof(notedir) - written, "%s%s", months[getmonth()], title);
   if (daily) {
-    written += snprintf(notedir + written, sizeof(int) + 1, ":%d", getday());
+    written += snprintf(notedir + written, sizeof(int) + 1, "-%d", getday());
   }
   written += snprintf(notedir + written, sizeof(notedir) - written, ".typ");
 

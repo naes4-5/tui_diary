@@ -6,6 +6,7 @@
 void mkentry(FILE *note, const char *entry);
 void initcheck(void);
 int initdirs();
+char *getArg(char *argv);
 
 int main(int argc, char *argv[]) {
   bool daily = false;
@@ -14,22 +15,30 @@ int main(int argc, char *argv[]) {
   char opts[argc - 1];
   for (int i = 1; i < argc; i++) {
     if (*argv[i] == '-' && strlen(argv[i]) > 1) {
-      switch (argv[i][1]) {
-      case 'd':
-        daily = true;
-        break;
-      case 'p':
-        printf("More options for a project...ig\n");
-        break;
-      case 't':
-        if (strlen(argv[++i]) >= 16) {
-          printf("title is too long, defaulting to 'thought'\n");
+      char *arg = getArg(argv[i]);
+      if (strlen(arg) == 1) {
+        char oner = *arg;
+        switch (oner) {
+        case 'd':
+          daily = true;
           break;
+        case 'p':
+          printf("More options for a project...ig\n");
+          break;
+        case 't':
+          if (strlen(argv[++i]) >= 16) {
+            printf("title is too long, defaulting to 'thought'\n");
+            break;
+          }
+          memcpy(title, argv[i], strlen(argv[i]) + 1);
+          break;
+        default:
+          printf("Flag '-%c' not supported\n", argv[i][1]);
         }
-        memcpy(title, argv[i], strlen(argv[i]) + 1);
-        break;
-      default:
-        printf("Flag '-%c' not supported\n", argv[i][1]);
+      } else if (!strcmp("version", arg)) {
+        printf("0.0.1\n");
+      } else {
+        printf("Flag '--%s' not supported\n", arg);
       }
     }
   }
@@ -93,3 +102,15 @@ int initdirs() {
 
   return 0;
 }
+
+char *getArg(char *argv) {
+  if (argv[0] != '-' || strlen(argv) < 2) {
+    fprintf(stderr, "invalid argument");
+    return NULL;
+  }
+  if (strlen(argv) == 2) return argv + 1;
+  return argv + 2;
+}
+
+
+

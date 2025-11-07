@@ -18,6 +18,9 @@ Making the entire system a cli tool
 - Don't crate new notes when you don't need too
 -> Check to see if the note already exists 
 
+- Title formatting
+-> ex. Change ':3' to ':3rd', then there is 1st, 2nd, and all the rest are xth
+
 - Accessing notes
 -> working within directories \
 -> accessing and searching for individual files
