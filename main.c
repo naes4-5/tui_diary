@@ -17,8 +17,8 @@ int main(int argc, char *argv[]) {
     if (*argv[i] == '-' && strlen(argv[i]) > 1) {
       char *arg = getArg(argv[i]);
       if (strlen(arg) == 1) {
-        char oner = *arg;
-        switch (oner) {
+        char oneer = *arg;
+        switch (oneer) {
         case 'd':
           daily = true;
           break;
@@ -111,6 +111,3 @@ char *getArg(char *argv) {
   if (strlen(argv) == 2) return argv + 1;
   return argv + 2;
 }
-
-
-
