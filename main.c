@@ -54,7 +54,10 @@ int main(int argc, char *argv[]) {
   return 0;
 }
 
-void mkentry(FILE *note, const char *entry) { fprintf(note, "%s\n", entry); }
+void mkentry(FILE *note, const char *entry) {
+  if (note != NULL)
+  fprintf(note, "%s\n", entry);
+}
 
 void initcheck(void) {
   char path[PATH_MAX];

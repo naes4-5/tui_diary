@@ -1,4 +1,42 @@
-= Big overview steps for this project
+#set page(height: auto)
+
+= Direy
+To help with context switching
+
+== Purpose
+1. Make context switching _easy_
+    - The system tracks intent from day to day. 
+    - Easy to look back at exactly what was going through your head yesterday
+    - Have goals for a project clearly laid out (Like purpose & features)
+        - Kinda like this document actually
+
+2. Complete functionality 
+```bash
+direy write "started implementing feature {x}"
+```
+Makes a new note with the current date with the inputted text \ \
+
+```bash
+direy write -p "Goal: Help with context switching"
+```
+Goals/notes for the entire project \ \
+
+```bash
+direy read
+```
+Outputs the most recent note \ \
+
+```bash
+direy read -d "{d/m/y}"
+```
+Outputs all of the notes made on that day in a readable format \ \
+
+```bash
+direy read -p 
+```
+Outputs the notes for the project 
+
+== Big overview steps for this project
 
 1. Creating new entries
     - All to a common directory (per month) \
@@ -14,18 +52,14 @@
 Making the entire system a cli tool
   - Adding flags that change functionality (new, daily, project-based)
 
-= Commit planning
+== Commit planning
 - Don't crate new notes when you don't need too
 -> Check to see if the note already exists 
 
 - Title formatting
 -> ex. Change ':3' to ':3rd', then there is 1st, 2nd, and all the rest are xth
 
-- Accessing notes
--> working within directories \
--> accessing and searching for individual files
-
-= Complete aspects
+== Complete aspects
 - Directories relating to the current month
 -> Make sure the note is in the correct directory \
 -> Get the date \
@@ -34,4 +68,4 @@ Make a way to create and modify the correct note. -> Take input and write it to
 file where the terminating character is '\n' _ had to make the character '|' _
 - Using as a cli tool
 -> using the args from argv to decide what I'm doing
--> I'm only now realizing that this has probably lost sight of the orignal scope, but whatever. 
+-> I'm only now realizing that this has probably lost sight of the original scope, but whatever. 
