@@ -5,9 +5,9 @@
 
 void mkentry(FILE *note, const char *entry);
 bool parseArgs(int argc, char *argv[], char *title);
+char *getArg(char *argv);
 void initcheck(void);
 int initdirs();
-char *getArg(char *argv);
 
 int main(int argc, char *argv[]) {
   char *title = malloc(16);
@@ -30,6 +30,15 @@ int main(int argc, char *argv[]) {
 void mkentry(FILE *note, const char *entry) {
   if (note != NULL)
   fprintf(note, "%s\n", entry);
+}
+
+char *getArg(char *argv) {
+  if (argv[0] != '-' || strlen(argv) < 2) {
+    fprintf(stderr, "invalid argument");
+    return NULL;
+  }
+  if (strlen(argv) == 2) return argv + 1;
+  return argv + 2;
 }
 
 bool parseArgs(int argc, char *argv[], char *title) {
@@ -112,13 +121,4 @@ int initdirs() {
   }
 
   return 0;
-}
-
-char *getArg(char *argv) {
-  if (argv[0] != '-' || strlen(argv) < 2) {
-    fprintf(stderr, "invalid argument");
-    return NULL;
-  }
-  if (strlen(argv) == 2) return argv + 1;
-  return argv + 2;
 }
