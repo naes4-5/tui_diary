@@ -4,14 +4,36 @@
 #include <unistd.h>
 
 void mkentry(FILE *note, const char *entry);
+bool parseArgs(int argc, char *argv[], char *title);
 void initcheck(void);
 int initdirs();
 char *getArg(char *argv);
 
 int main(int argc, char *argv[]) {
-  bool daily = false;
   char *title = malloc(16);
   memcpy(title, "thought", sizeof("thought"));
+  bool daily = parseArgs(argc, argv, title);
+  initcheck();
+  FILE *note = mknote(daily, title);
+  if (!note) {
+    fprintf(stderr, "Error in opening, aborting.\n");
+    free(title);
+    return 1;
+  }
+  mkentry(note, argv[argc - 1]);
+
+  fclose(note);
+  free(title);
+  return 0;
+}
+
+void mkentry(FILE *note, const char *entry) {
+  if (note != NULL)
+  fprintf(note, "%s\n", entry);
+}
+
+bool parseArgs(int argc, char *argv[], char *title) {
+  bool daily = false;
   char opts[argc - 1];
   for (int i = 1; i < argc; i++) {
     if (*argv[i] == '-' && strlen(argv[i]) > 1) {
@@ -42,21 +64,7 @@ int main(int argc, char *argv[]) {
       }
     }
   }
-  initcheck();
-  FILE *note = mknote(daily, title);
-  if (!note) {
-    fprintf(stderr, "Error in opening, aborting.\n");
-    return 1;
-  }
-  mkentry(note, argv[argc - 1]);
-
-  fclose(note);
-  return 0;
-}
-
-void mkentry(FILE *note, const char *entry) {
-  if (note != NULL)
-  fprintf(note, "%s\n", entry);
+  return daily;
 }
 
 void initcheck(void) {
