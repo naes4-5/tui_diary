@@ -1,20 +1,21 @@
 #include "src/includes.h"
 #include "src/makenote.c"
 #include <linux/limits.h>
+#include <string.h>
 #include <unistd.h>
 
 void mkentry(FILE *note, const char *entry);
-bool parseArgs(int argc, char *argv[], char *title);
+Operatin getOperation(int argc, char *argv[], char *title);
 char *getArg(char *argv);
 void initcheck(void);
 int initdirs();
 
 int main(int argc, char *argv[]) {
   char *title = malloc(16);
-  memcpy(title, "thought", sizeof("thought"));
-  bool daily = parseArgs(argc, argv, title);
+  memcpy(title, "", sizeof(""));
+  Operatin operation = getOperation(argc, argv, title);
   initcheck();
-  FILE *note = mknote(daily, title);
+  FILE *note = mknote(title);
   if (!note) {
     fprintf(stderr, "Error in opening, aborting.\n");
     free(title);
@@ -28,52 +29,26 @@ int main(int argc, char *argv[]) {
 }
 
 void mkentry(FILE *note, const char *entry) {
-  if (note != NULL)
-  fprintf(note, "%s\n", entry);
+  if (note != NULL) fprintf(note, "%s\n", entry);
 }
 
-char *getArg(char *argv) {
-  if (argv[0] != '-' || strlen(argv) < 2) {
+char *getArg(char *arg) {
+  if (arg[0] != '-' || strlen(arg) < 2) {
     fprintf(stderr, "invalid argument");
     return NULL;
   }
-  if (strlen(argv) == 2) return argv + 1;
-  return argv + 2;
+  if (strlen(arg) == 2)
+    return arg + 1;
+  return arg + 2;
 }
 
-bool parseArgs(int argc, char *argv[], char *title) {
-  bool daily = false;
-  char opts[argc - 1];
-  for (int i = 1; i < argc; i++) {
-    if (*argv[i] == '-' && strlen(argv[i]) > 1) {
-      char *arg = getArg(argv[i]);
-      if (strlen(arg) == 1) {
-        char oneer = *arg;
-        switch (oneer) {
-        case 'd':
-          daily = true;
-          break;
-        case 'p':
-          printf("More options for a project...ig\n");
-          break;
-        case 't':
-          if (strlen(argv[++i]) >= 16) {
-            printf("title is too long, defaulting to 'thought'\n");
-            break;
-          }
-          memcpy(title, argv[i], strlen(argv[i]) + 1);
-          break;
-        default:
-          printf("Flag '-%c' not supported\n", argv[i][1]);
-        }
-      } else if (!strcmp("version", arg)) {
-        printf("0.0.1\n");
-      } else {
-        printf("Flag '--%s' not supported\n", arg);
-      }
-    }
+Operatin getOperation(int argc, char *argv[], char *title) {
+  char *arg = malloc(8);
+  memcpy(arg, argv[1], strlen(argv[1]));
+  if (!strcmp(arg, "write")) {
+    return WRITE;
   }
-  return daily;
+  return READ;
 }
 
 void initcheck(void) {

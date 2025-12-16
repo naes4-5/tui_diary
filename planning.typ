@@ -11,6 +11,7 @@ To help with context switching
         - Kinda like this document actually
 
 2. Complete functionality 
+
 ```bash
 direy write "started implementing feature {x}"
 ```
@@ -30,6 +31,11 @@ Outputs the most recent note \ \
 direy read -d "{d/m/y}"
 ```
 Outputs all of the notes made on that day in a readable format \ \
+
+```bash
+direy read -d n
+```
+Outputs the nth note ago (so if it were one, has the same functionality without the flag)\ \
 
 ```bash
 direy read -p 
