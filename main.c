@@ -1,9 +1,11 @@
 #include "src/includes.h"
 #include "src/makenote.c"
 #include <linux/limits.h>
+#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 
+char *redError(const char *toPrint);
 Operatin getOperation(int argc, char *argv[], char *title);
 char *getArg(char *argv);
 void initcheck(void);
@@ -14,7 +16,7 @@ int main(int argc, char *argv[]) {
   memcpy(title, "balls", sizeof("balls"));
   Operatin operation = getOperation(argc, argv, title);
   if (operation == NOOP) {
-    fprintf(stderr, "Error parsing arguments, aborting\n");
+    fprintf(stderr, "\x1b[31mMust do an operation:\nread\nwrite\x1b[0m\n");
     free(title);
     return 1;
   }
@@ -25,12 +27,23 @@ int main(int argc, char *argv[]) {
     free(title);
     return 1;
   }
-  
-  fprintf(note, "%s\n", argv[argc-1]);
-  
+
+  fprintf(note, "%s\n", argv[argc - 1]);
+
   fclose(note);
   free(title);
   return 0;
+}
+
+char *redError(const char *toPrint) {
+  const char *start = "\x1b[31m";
+  const char *end = "\x1b[0m";
+  size_t len = strlen(start) + strlen(toPrint) + strlen(end) + 1;
+  char *finalMessage = malloc(len);
+  if (!finalMessage)
+    return NULL;
+  snprintf(finalMessage, len, "%s%s%s", start, toPrint, end);
+  return finalMessage;
 }
 
 char *getArg(char *arg) {
@@ -44,14 +57,15 @@ char *getArg(char *arg) {
 }
 
 Operatin getOperation(int argc, char *argv[], char *title) {
-  if (argc < 2) {
+  if (argc < 2 || strlen(argv[1]) > 5) {
     return NOOP;
   }
-  char *arg = malloc(8);
-  memcpy(arg, argv[1], strlen(argv[1]));
+  char *arg = malloc(6);
+  strcat(arg, argv[1]);
   if (!strcmp(arg, "write")) {
     return WRITE;
   }
+  free(arg);
   return READ;
 }
 
