@@ -4,7 +4,6 @@
 #include <string.h>
 #include <unistd.h>
 
-void mkentry(FILE *note, const char *entry);
 Operatin getOperation(int argc, char *argv[], char *title);
 char *getArg(char *argv);
 void initcheck(void);
@@ -12,24 +11,26 @@ int initdirs();
 
 int main(int argc, char *argv[]) {
   char *title = malloc(16);
-  memcpy(title, "", sizeof(""));
+  memcpy(title, "balls", sizeof("balls"));
   Operatin operation = getOperation(argc, argv, title);
-  initcheck();
-  FILE *note = mknote(title);
-  if (!note) {
-    fprintf(stderr, "Error in opening, aborting.\n");
+  if (operation == NOOP) {
+    fprintf(stderr, "Error parsing arguments, aborting\n");
     free(title);
     return 1;
   }
-  mkentry(note, argv[argc - 1]);
-
+  initcheck();
+  FILE *note = mknote(title);
+  if (!note) {
+    fprintf(stderr, "Error in opening, aborting\n");
+    free(title);
+    return 1;
+  }
+  
+  fprintf(note, "%s\n", argv[argc-1]);
+  
   fclose(note);
   free(title);
   return 0;
-}
-
-void mkentry(FILE *note, const char *entry) {
-  if (note != NULL) fprintf(note, "%s\n", entry);
 }
 
 char *getArg(char *arg) {
@@ -43,6 +44,9 @@ char *getArg(char *arg) {
 }
 
 Operatin getOperation(int argc, char *argv[], char *title) {
+  if (argc < 2) {
+    return NOOP;
+  }
   char *arg = malloc(8);
   memcpy(arg, argv[1], strlen(argv[1]));
   if (!strcmp(arg, "write")) {

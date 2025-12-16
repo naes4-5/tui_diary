@@ -22,5 +22,6 @@ typedef enum Flag {
 
 typedef enum Operation {
     WRITE, 
-    READ
+    READ,
+    NOOP
 } Operatin;
