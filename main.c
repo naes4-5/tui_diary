@@ -1,24 +1,43 @@
 #include "src/includes.h"
 #include "src/makenote.c"
-#include <linux/limits.h>
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
 
 char *redError(const char *toPrint);
 Operatin getOperation(int argc, char *argv[], char *title);
-char *getArg(char *argv);
+FlgTyp getArg(char *argv);
 void initcheck(void);
 int initdirs();
 
 int main(int argc, char *argv[]) {
   char *title = malloc(16);
+  char *message;
   memcpy(title, "balls", sizeof("balls"));
   Operatin operation = getOperation(argc, argv, title);
-  if (operation == NOOP) {
-    fprintf(stderr, "\x1b[31mMust do an operation:\nread\nwrite\x1b[0m\n");
+  switch (operation) {
+  case NOOP:
+    message = redError("Must include an operation:\nread\nwrite");
+    fprintf(stderr, "%s\n", message);
+    free(message);
     free(title);
     return 1;
+  case READ:
+    switch (getArg(argv[2])) {
+    case PROJECT:
+      printf("Project read\n");
+      break;
+    case NORMAL:
+      printf("Normal read\n");
+      break;
+    case INVALID:
+      message = redError("Flag must be valid:\n-p");
+      fprintf(stderr, "%s\n", message);
+      free(title);
+      free(message);
+      return 1;
+    }
+    break;
+  case WRITE:
+    printf("Successfully wrote!\n");
+    break;
   }
   initcheck();
   FILE *note = mknote(title);
@@ -29,7 +48,6 @@ int main(int argc, char *argv[]) {
   }
 
   fprintf(note, "%s\n", argv[argc - 1]);
-
   fclose(note);
   free(title);
   return 0;
@@ -37,36 +55,34 @@ int main(int argc, char *argv[]) {
 
 char *redError(const char *toPrint) {
   const char *start = "\x1b[31m";
-  const char *end = "\x1b[0m";
-  size_t len = strlen(start) + strlen(toPrint) + strlen(end) + 1;
+  const char *suffix = "\x1b[0m";
+  size_t len = strlen(start) + strlen(toPrint) + strlen(suffix) + 1;
   char *finalMessage = malloc(len);
   if (!finalMessage)
     return NULL;
-  snprintf(finalMessage, len, "%s%s%s", start, toPrint, end);
+  snprintf(finalMessage, len, "%s%s%s", start, toPrint, suffix);
   return finalMessage;
 }
 
-char *getArg(char *arg) {
-  if (arg[0] != '-' || strlen(arg) < 2) {
-    fprintf(stderr, "invalid argument");
-    return NULL;
-  }
-  if (strlen(arg) == 2)
-    return arg + 1;
-  return arg + 2;
+FlgTyp getArg(char *arg) {
+  if (!arg)
+    return NORMAL;
+  if (arg[0] != '-' || strlen(arg) < 2) 
+    return INVALID;
+  if (arg[1] == 'p')
+    return PROJECT;
+  return NORMAL;
 }
 
 Operatin getOperation(int argc, char *argv[], char *title) {
   if (argc < 2 || strlen(argv[1]) > 5) {
     return NOOP;
   }
-  char *arg = malloc(6);
-  strcat(arg, argv[1]);
-  if (!strcmp(arg, "write")) {
+  if (!strcmp(argv[1], "write"))
     return WRITE;
-  }
-  free(arg);
-  return READ;
+  if (!strcmp(argv[1], "read"))
+    return READ;
+  return NOOP;
 }
 
 void initcheck(void) {
