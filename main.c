@@ -4,6 +4,7 @@
 char *redError(const char *toPrint);
 Operatin getOperation(int argc, char *argv[], char *title);
 FlgTyp getArg(char *argv);
+char *configPath();
 void initcheck(void);
 int initdirs();
 
@@ -46,7 +47,8 @@ int main(int argc, char *argv[]) {
     free(title);
     return 1;
   }
-
+  char *path = configPath();
+  printf("path is %s\n", path);
   fprintf(note, "%s\n", argv[argc - 1]);
   fclose(note);
   free(title);
@@ -72,6 +74,21 @@ FlgTyp getArg(char *arg) {
   if (arg[1] == 'p')
     return PROJECT;
   return NORMAL;
+}
+
+char *configPath() {
+  static char path[512];
+  const char *xdg = getenv("XDG_CONFIG_HOME");
+  if (xdg) {
+    snprintf(path, sizeof(path), "%s/direy/config", xdg);
+    return path;
+  }
+  const char *home = getenv("HOME");
+  if (home) {
+    snprintf(path, sizeof(path), "%s/.config/direy/config", home);
+    return path;
+  }
+  return "/etc/direy/config";
 }
 
 Operatin getOperation(int argc, char *argv[], char *title) {
