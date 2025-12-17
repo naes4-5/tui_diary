@@ -5,7 +5,7 @@ char *redError(const char *toPrint);
 Operatin getOperation(int argc, char *argv[], char *title);
 FlgTyp getArg(char *argv);
 char *configPath();
-void initcheck(void);
+void initcheck();
 int initdirs();
 
 int main(int argc, char *argv[]) {
@@ -102,7 +102,7 @@ Operatin getOperation(int argc, char *argv[], char *title) {
     return NOOP;
 }
 
-void initcheck(void) {
+void initcheck() {
     char path[PATH_MAX];
     if (getcwd(path, sizeof(path)) == NULL) {
         fprintf(stderr, "Error occured: %s\n", strerror(errno));
