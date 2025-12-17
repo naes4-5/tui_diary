@@ -28,14 +28,9 @@ direy read
 Outputs the most recent note \ \
 
 ```bash
-direy read -d "{d/m/y}"
-```
-Outputs all of the notes made on that day in a readable format \ \
-
-```bash
 direy read -d n
 ```
-Outputs the nth note ago (so if it were one, has the same functionality without the flag)\ \
+Outputs the nth note ago (so if n were one, has the same functionality as 'direy read') \ \
 
 ```bash
 direy read -p 
