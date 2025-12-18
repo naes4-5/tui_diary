@@ -17,6 +17,6 @@ static const char *months[] = {"1.January/",  "2.February/",  "3.March/",
                                "7.July/",     "8.August/",    "9.September/",
                                "10.October/", "11.November/", "12.December/"};
 
-typedef enum Flag { PROJECT, NORMAL, INVALID } FlgTyp;
-
-typedef enum Operation { WRITE, READ, NOOP } Operatin;
+typedef enum Level { PROJECT, NORMAL, INVALID } note_t;
+typedef enum Operation { WRITE, READ, NOOP } operation;
+typedef enum ExitType { BADOPERATION = 1, BADFLAG, NOREPO } exit_t;

@@ -1,64 +1,60 @@
-// test from new branch I hope
-// Ooooooooooooooooooh, that failed, but this one def wont frfr on skibidi
-// And now here's a second commit for ya, we'll see how this one squashes. 
-
-#include "src/includes.h"
-#include "src/makenote.c"
+#include "../includes/includes.h"
+#include "makenote.c"
+#include <stdio.h>
 
 char *red_error(const char *toPrint);
-Operatin get_operation(int argc, char *argv[], char *title);
-FlgTyp get_arg(char *argv);
+int exit_error(char *toPrint, exit_t code);
+operation get_operation(int argc, char *argv[]);
+note_t get_arg(char *argv);
 char *config_path();
 char *get_project_name();
+char *svalidflags();
 void initcheck();
-int initdirs();
 
 int main(int argc, char *argv[]) {
-    char *title = malloc(16);
     char *message;
-    char *project;
-    memcpy(title, "balls", sizeof("balls"));
-    Operatin operation = get_operation(argc, argv, title);
+    operation operation = get_operation(argc, argv);
+    note_t noteLevel = get_arg(argv[2]);
+    char *project = get_project_name();
+    if (!project) {
+        return exit_error("No git repository found, aborting", NOREPO);
+    }
+
+    // Complete the operation
     switch (operation) {
-    case NOOP:
-        message = red_error("Must include an operation:\nread\nwrite");
-        fprintf(stderr, "%s\n", message);
-        free(message);
-        free(title);
-        return 1;
     case READ:
-        switch (get_arg(argv[2])) {
-        case PROJECT:
-            project = get_project_name();
-            printf("Project read from %s\n", project);
-            break;
-        case NORMAL:
-            printf("Normal read\n");
-            break;
-        case INVALID:
-            message = red_error("Flag must be valid:\n-p");
-            fprintf(stderr, "%s\n", message);
-            free(title);
-            free(message);
-            return 1;
+        if (noteLevel == INVALID) {
+            return exit_error("Flag must be valid:\n-p -> project level note",
+                              BADFLAG);
         }
+        printf("Successfully read");
+        if (project) {
+            printf(" from %s", project);
+        }
+        printf("\n");
         break;
     case WRITE:
-        printf("Successfully wrote!\n");
+        printf("Successfully wrote");
+        if (project) {
+            printf(" to %s", project);
+        }
+        printf("\n");
+        break;
+    case NOOP:
+        return exit_error("Must have an operation:\nread\nwrite", BADOPERATION);
         break;
     }
+
     initcheck();
-    FILE *note = mknote(title);
-    if (!note) {
-        fprintf(stderr, "Error in opening, aborting\n");
-        free(title);
-        return 1;
-    }
+    // FILE *note = mknote("balls");
+    // if (!note) {
+    //     fprintf(stderr, "Error in opening, aborting\n");
+    //     return 1;
+    // }
     char *path = config_path();
     printf("path is %s\n", path);
-    fprintf(note, "%s\n", argv[argc - 1]);
-    fclose(note);
-    free(title);
+    // fprintf(note, "%s\n", argv[argc - 1]);
+    // fclose(note);
     return 0;
 }
 
@@ -73,13 +69,23 @@ char *red_error(const char *toPrint) {
     return finalMessage;
 }
 
-FlgTyp get_arg(char *arg) {
+int exit_error(char *toPrint, exit_t code) {
+    char *message = red_error(toPrint);
+    fprintf(stderr, "%s\n", message);
+    free(message);
+    printf("%d\n", code);
+    return code;
+}
+
+note_t get_arg(char *arg) {
     if (!arg)
         return NORMAL;
     if (arg[0] != '-' || strlen(arg) < 2)
         return INVALID;
     if (arg[1] == 'p')
         return PROJECT;
+    else if (arg[1] != 'p')
+        return INVALID;
     return NORMAL;
 }
 
@@ -135,7 +141,7 @@ char *get_project_name() {
     return project_name;
 }
 
-Operatin get_operation(int argc, char *argv[], char *title) {
+operation get_operation(int argc, char *argv[]) {
     if (argc < 2 || strlen(argv[1]) > 5) {
         return NOOP;
     }
@@ -151,6 +157,7 @@ void initcheck() {
     if (getcwd(path, sizeof(path)) == NULL) {
         fprintf(stderr, "Error occured: %s\n", strerror(errno));
     }
+    printf("path: %s\n", path);
 
     DIR *d;
     struct dirent *entry;
@@ -167,29 +174,4 @@ void initcheck() {
         }
     }
     closedir(d);
-    initdirs();
-}
-
-int initdirs() {
-    if (mkdir("Diary", 0744) == -1) {
-        fprintf(stderr, "Directory creation failed: %s\n", strerror(errno));
-        return 1;
-    }
-
-    for (int i = 0; i < sizeof(months) / sizeof(months[0]); i++) {
-        char dir[32];
-        snprintf(dir, sizeof(dir), "Diary/%s", months[i]);
-        if (mkdir(dir, 0744) == -1) {
-            if (errno == EEXIST) {
-                fprintf(
-                    stderr,
-                    "Directory creation failed, \"%s\" already exists: %s\n",
-                    dir, strerror(errno));
-            } else {
-                fprintf(stderr, "\"mkdir\" failed: %s\n", strerror(errno));
-            }
-        }
-    }
-
-    return 0;
 }
