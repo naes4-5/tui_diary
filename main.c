@@ -1,35 +1,38 @@
 #include "src/includes.h"
 #include "src/makenote.c"
 
-char *redError(const char *toPrint);
-Operatin getOperation(int argc, char *argv[], char *title);
-FlgTyp getArg(char *argv);
-char *configPath();
+char *red_error(const char *toPrint);
+Operatin get_operation(int argc, char *argv[], char *title);
+FlgTyp get_arg(char *argv);
+char *config_path();
+char *get_project_name();
 void initcheck();
 int initdirs();
 
 int main(int argc, char *argv[]) {
     char *title = malloc(16);
     char *message;
+    char *project;
     memcpy(title, "balls", sizeof("balls"));
-    Operatin operation = getOperation(argc, argv, title);
+    Operatin operation = get_operation(argc, argv, title);
     switch (operation) {
     case NOOP:
-        message = redError("Must include an operation:\nread\nwrite");
+        message = red_error("Must include an operation:\nread\nwrite");
         fprintf(stderr, "%s\n", message);
         free(message);
         free(title);
         return 1;
     case READ:
-        switch (getArg(argv[2])) {
+        switch (get_arg(argv[2])) {
         case PROJECT:
-            printf("Project read\n");
+            project = get_project_name();
+            printf("Project read from %s\n", project);
             break;
         case NORMAL:
             printf("Normal read\n");
             break;
         case INVALID:
-            message = redError("Flag must be valid:\n-p");
+            message = red_error("Flag must be valid:\n-p");
             fprintf(stderr, "%s\n", message);
             free(title);
             free(message);
@@ -47,7 +50,7 @@ int main(int argc, char *argv[]) {
         free(title);
         return 1;
     }
-    char *path = configPath();
+    char *path = config_path();
     printf("path is %s\n", path);
     fprintf(note, "%s\n", argv[argc - 1]);
     fclose(note);
@@ -55,7 +58,7 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-char *redError(const char *toPrint) {
+char *red_error(const char *toPrint) {
     const char *start = "\x1b[31m";
     const char *suffix = "\x1b[0m";
     size_t len = strlen(start) + strlen(toPrint) + strlen(suffix) + 1;
@@ -66,7 +69,7 @@ char *redError(const char *toPrint) {
     return finalMessage;
 }
 
-FlgTyp getArg(char *arg) {
+FlgTyp get_arg(char *arg) {
     if (!arg)
         return NORMAL;
     if (arg[0] != '-' || strlen(arg) < 2)
@@ -76,7 +79,7 @@ FlgTyp getArg(char *arg) {
     return NORMAL;
 }
 
-char *configPath() {
+char *config_path() {
     static char path[512];
     const char *xdg = getenv("XDG_CONFIG_HOME");
     if (xdg) {
@@ -91,7 +94,44 @@ char *configPath() {
     return "/etc/direy/config";
 }
 
-Operatin getOperation(int argc, char *argv[], char *title) {
+char *get_project_name() {
+    FILE *fp = popen("git config --get remote.origin.url", "r");
+    if (!fp)
+        return NULL;
+
+    char url[512];
+    if (fgets(url, sizeof(url), fp) == NULL) {
+        pclose(fp);
+        return NULL;
+    }
+    pclose(fp);
+
+    // Remove newline
+    url[strcspn(url, "\n")] = 0;
+
+    // Find the last '/' || ':' in the url, right before the repo name
+    char *last_slash = strrchr(url, '/');
+    if (!last_slash)
+        last_slash = strrchr(url, ':');
+    if (!last_slash)
+        return NULL;
+
+    static char project_name[512];
+    int written =
+        snprintf(project_name, sizeof(project_name), "%s", last_slash + 1);
+    if (written >= sizeof(project_name) || written < 0) {
+        return NULL;
+    }
+
+    // If '.git' is found, changes the element where the '.get' would be
+    char *dot_git = strstr(project_name, ".git");
+    if (dot_git)
+        *dot_git = '\0';
+
+    return project_name;
+}
+
+Operatin get_operation(int argc, char *argv[], char *title) {
     if (argc < 2 || strlen(argv[1]) > 5) {
         return NOOP;
     }
