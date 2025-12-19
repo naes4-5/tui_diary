@@ -4,7 +4,7 @@
 #include "../includes/includes.h"
 
 // returns toPrint but red when printed
-char *_red_error(const char *toPrint) {
+static char *red_error(const char *toPrint) {
     const char *start = "\x1b[31m";
     const char *suffix = "\x1b[0m";
     size_t len = strlen(start) + strlen(toPrint) + strlen(suffix) + 1;
@@ -17,7 +17,7 @@ char *_red_error(const char *toPrint) {
 
 // returns the exit code & prints the error message (toPrint)
 int exit_error(char *toPrint, exit_t code) {
-    char *message = _red_error(toPrint);
+    char *message = red_error(toPrint);
     fprintf(stderr, "%s\n", message);
     free(message);
     return code;
