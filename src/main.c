@@ -1,18 +1,48 @@
 #include "../includes/includes.h"
-#include "makenote.c"
-#include "findpaths.c"
 #include "cltools.c"
+#include "findpaths.c"
+#include "makenote.c"
+#include <linux/limits.h>
 
-DIR *initdir();
+DIR *initdir(const char *homePath);
 
 int main(int argc, char *argv[]) {
     char *message;
-    char *project = get_project_name();
-    if (!project) {
+    FILE *newnote;
+    const char *homepath = getenv("HOME");
+    if (!homepath) {
+        return exit_error("Error opening home directory, aborting.\nTryagain.",
+                          BADDIR);
+    }
+    char dierypath[PATH_MAX];
+    int writ1 = snprintf(dierypath, sizeof(dierypath), "%s/.diery/", homepath);
+    if (writ1 > sizeof(dierypath) || writ1 < 0) {
+        return exit_error("Error getting path to '~/.diery'.\nTry again.",
+                          BADDIR);
+    }
+
+    char *projectname = get_project_name();
+    if (!projectname) {
         return exit_error("No git repository found, aborting", NOREPO);
     }
 
-    DIR *projectdir = initdir();
+    char projectpath[PATH_MAX];
+    int writ2 = snprintf(projectpath, sizeof(projectpath), "%s%s", dierypath,
+                         projectname);
+    if (writ2 > sizeof(dierypath) || writ2 < 0) {
+        return exit_error("Error getting path to '~/.diery'.\nTry again.",
+                          BADDIR);
+    }
+
+    char *configpath = config_path();
+    if (!configpath) {
+        return exit_error("Failed to open configuration", BADDIR);
+    }
+    printf("project name is %s\n", projectname);
+    printf("path to config is %s\n", configpath);
+    printf("path to diery is %s\n", dierypath);
+
+    DIR *projectdir = initdir(homepath);
     if (!projectdir) {
         return exit_error("Directory faield to open, aborting.\nTry again.",
                           BADDIR);
@@ -24,7 +54,7 @@ int main(int argc, char *argv[]) {
         return exit_error("Must have an operation:\nread\nwrite", BADOPERATION);
     }
 
-    note_t notelevel = get_arg(argv[2]);
+    note_t notelevel = get_note_type(argv[2]);
     if (notelevel == INVALID) {
         closedir(projectdir);
         return exit_error("Flag must be valid:\n-p -> project level note",
@@ -32,36 +62,32 @@ int main(int argc, char *argv[]) {
     }
 
     if (operation == READ) {
-        printf("Successfully read from %s\n", project);
+        printf("Successfully read from %s\n", projectname);
     } else if (operation == WRITE) {
-        printf("Successfully wrote to %s ", project);
+        printf("Successfully wrote to %s ", projectname);
         if (notelevel == PROJECT) {
             printf("as a project note!");
+            goto note_complete;
         }
-        printf("\n");
+        newnote = mknote(projectname, dierypath);
+        if (!newnote) {
+            closedir(projectdir);
+            return exit_error("Error opening file", BADDIR);
+        }
+    note_complete:
+        printf("Note successfully written!\n");
     }
 
-    char *path = config_path();
-    if (!path) {
-        closedir(projectdir);
-        return exit_error("Failed to open configuration", BADDIR);
-    }
-    printf("path is %s\n", path);
-
+    if (newnote)
+        fclose(newnote);
     closedir(projectdir);
     return 0;
 }
 
-DIR *initdir() {
+DIR *initdir(const char *homePath) {
     static char path[PATH_MAX];
 
-    // Find the relevant folder
-    const char *homePath = getenv("HOME");
-    if (!homePath) {
-        return NULL;
-    }
-
-    int written = snprintf(path, sizeof(path), "%s/.diery", homePath);
+    int written = snprintf(path, sizeof(path), "%s/.diery/", homePath);
     if (written > sizeof(path) || written < 0) {
         return NULL;
     }
