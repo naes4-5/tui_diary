@@ -19,4 +19,4 @@ static const char *months[] = {"1.January/",  "2.February/",  "3.March/",
 
 typedef enum Level { PROJECT, NORMAL, INVALID } note_t;
 typedef enum Operation { WRITE, READ, NOOP } operation;
-typedef enum ExitType { BADOPERATION = 1, BADFLAG, NOREPO } exit_t;
+typedef enum ExitType { BADOPERATION = 1, BADFLAG, NOREPO, BADDIR } exit_t;

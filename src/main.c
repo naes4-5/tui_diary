@@ -1,6 +1,5 @@
 #include "../includes/includes.h"
 #include "makenote.c"
-#include <stdio.h>
 
 char *red_error(const char *toPrint);
 int exit_error(char *toPrint, exit_t code);
@@ -9,52 +8,52 @@ note_t get_arg(char *argv);
 char *config_path();
 char *get_project_name();
 char *svalidflags();
-void initcheck();
+DIR *initdir();
 
 int main(int argc, char *argv[]) {
     char *message;
-    operation operation = get_operation(argc, argv);
-    note_t noteLevel = get_arg(argv[2]);
     char *project = get_project_name();
     if (!project) {
         return exit_error("No git repository found, aborting", NOREPO);
     }
 
-    // Complete the operation
-    switch (operation) {
-    case READ:
-        if (noteLevel == INVALID) {
-            return exit_error("Flag must be valid:\n-p -> project level note",
-                              BADFLAG);
-        }
-        printf("Successfully read");
-        if (project) {
-            printf(" from %s", project);
-        }
-        printf("\n");
-        break;
-    case WRITE:
-        printf("Successfully wrote");
-        if (project) {
-            printf(" to %s", project);
-        }
-        printf("\n");
-        break;
-    case NOOP:
-        return exit_error("Must have an operation:\nread\nwrite", BADOPERATION);
-        break;
+    DIR *projectdir = initdir();
+    if (!projectdir) {
+        return exit_error("Directory faield to open, aborting.\nTry again.",
+                          BADDIR);
     }
 
-    initcheck();
-    // FILE *note = mknote("balls");
-    // if (!note) {
-    //     fprintf(stderr, "Error in opening, aborting\n");
-    //     return 1;
-    // }
+    operation operation = get_operation(argc, argv);
+    if (operation == NOOP) {
+        closedir(projectdir);
+        return exit_error("Must have an operation:\nread\nwrite", BADOPERATION);
+    }
+
+    note_t notelevel = get_arg(argv[2]);
+    if (notelevel == INVALID) {
+        closedir(projectdir);
+        return exit_error("Flag must be valid:\n-p -> project level note",
+                          BADFLAG);
+    }
+
+    if (operation == READ) {
+        printf("Successfully read from %s\n", project);
+    } else if (operation == WRITE) {
+        printf("Successfully wrote to %s ", project);
+        if (notelevel == PROJECT) {
+            printf("as a project note!");
+        }
+        printf("\n");
+    }
+
     char *path = config_path();
+    if (!path) {
+        closedir(projectdir);
+        return exit_error("Failed to open configuration", BADDIR);
+    }
     printf("path is %s\n", path);
-    // fprintf(note, "%s\n", argv[argc - 1]);
-    // fclose(note);
+
+    closedir(projectdir);
     return 0;
 }
 
@@ -73,7 +72,6 @@ int exit_error(char *toPrint, exit_t code) {
     char *message = red_error(toPrint);
     fprintf(stderr, "%s\n", message);
     free(message);
-    printf("%d\n", code);
     return code;
 }
 
@@ -91,16 +89,29 @@ note_t get_arg(char *arg) {
 
 char *config_path() {
     static char path[512];
+
+    // Check for defaunt config
     const char *xdg = getenv("XDG_CONFIG_HOME");
     if (xdg) {
-        snprintf(path, sizeof(path), "%s/direy/config", xdg);
+        int written = snprintf(path, sizeof(path), "%s/direy/config", xdg);
+        if (written > sizeof(path) || written < 0) {
+            return NULL;
+        }
         return path;
     }
+
+    // Check for backup config
     const char *home = getenv("HOME");
     if (home) {
-        snprintf(path, sizeof(path), "%s/.config/direy/config", home);
+        int written =
+            snprintf(path, sizeof(path), "%s/.config/direy/config", home);
+        if (written > sizeof(path) || written < 0) {
+            return NULL;
+        }
         return path;
     }
+
+    // Default to the system config
     return "/etc/direy/config";
 }
 
@@ -152,26 +163,30 @@ operation get_operation(int argc, char *argv[]) {
     return NOOP;
 }
 
-void initcheck() {
-    char path[PATH_MAX];
-    if (getcwd(path, sizeof(path)) == NULL) {
-        fprintf(stderr, "Error occured: %s\n", strerror(errno));
+DIR *initdir() {
+    static char path[PATH_MAX];
+
+    // Find the relevant folder
+    const char *homePath = getenv("HOME");
+    if (!homePath) {
+        return NULL;
     }
-    printf("path: %s\n", path);
+
+    int written = snprintf(path, sizeof(path), "%s/.diery", homePath);
+    if (written > sizeof(path) || written < 0) {
+        return NULL;
+    }
+
+    if (mkdir(path, 0755) == -1 && errno != EEXIST) {
+        perror("Error making ~/.diery");
+        return NULL;
+    }
 
     DIR *d;
     struct dirent *entry;
     d = opendir(path);
     if (!d) {
-        fprintf(stderr, "Error occured: %s\n", strerror(errno));
+        perror("Error opening ~/.diery");
     }
-    while ((entry = readdir(d)) != NULL) {
-        char buf[64];
-        sprintf(buf, "%s", entry->d_name);
-        if (!strcmp(buf, "Diary")) {
-            closedir(d);
-            return;
-        }
-    }
-    closedir(d);
+    return d;
 }
