@@ -1,6 +1,9 @@
+#include <dirent.h>
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 
 // returns the path to the config for diery
 char *config_path() {
@@ -28,6 +31,7 @@ char *config_path() {
     }
 
     // Default to the system config
+    // Does require the command to be run with sudo
     return "/etc/direy/config";
 }
 
@@ -67,4 +71,63 @@ char *get_project_name() {
         *dot_git = '\0';
 
     return project_name;
+}
+
+DIR *_make_project_dir(DIR *d, const char *projectname, char *path);
+
+// returns the path to the directory relevant to the project
+DIR *get_project_dir(const char *homePath, const char *projectname) {
+    if (!homePath || !projectname) {
+        return NULL;
+    }
+    static char path[PATH_MAX];
+
+    int written = snprintf(path, sizeof(path), "%s/.diery/", homePath);
+    if (written > sizeof(path) || written < 0) {
+        return NULL;
+    }
+
+    if (mkdir(path, 0755) == -1 && errno != EEXIST) {
+        perror("Error making ~/.diery");
+        return NULL;
+    }
+
+    DIR *d = opendir(path);
+    if (!d) {
+        perror("Error opening ~/.diery");
+    }
+    return _make_project_dir(d, projectname, path);
+}
+
+DIR *_make_project_dir(DIR *d, const char *projectname, char *path) {
+    struct dirent *entry;
+    char projectpath[PATH_MAX];
+    int written =
+        snprintf(projectpath, sizeof(projectpath), "%s%s", path, projectname);
+    if (written > sizeof(projectpath) || written < 0) {
+        perror("Can't print to path");
+        return NULL;
+    }
+    // check to see if it alread exists
+    while ((entry = readdir(d)) != NULL) {
+        if (strcmp(entry->d_name, projectname)) {
+            continue;
+        }
+        DIR *ret = opendir(projectpath);
+        if (!ret) {
+            perror("Can't open path");
+            closedir(d);
+            return NULL;
+        }
+        closedir(d);
+        return ret;
+    }
+    // make & return the directory if not
+    if (mkdir(projectpath, 0755) == -1 && errno != EEXIST) {
+        perror("Error making ~/.diery/{project name}");
+        return NULL;
+    }
+    DIR *ret = opendir(projectpath);
+    closedir(d);
+    return ret;
 }

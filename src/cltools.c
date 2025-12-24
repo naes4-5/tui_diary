@@ -1,6 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "../includes/includes.h"
 
 // returns toPrint but red when printed
@@ -24,15 +21,18 @@ int exit_error(char *toPrint, exit_t code) {
 }
 
 // returns the type of note based on the argument
-note_t get_note_type(char *arg) {
-    if (!arg)
-        return NORMAL;
-    if (arg[0] != '-' || strlen(arg) < 2)
+note_t get_note_type(int argc, char *argv[]) {
+    if (argc < 3) {
         return INVALID;
-    if (arg[1] == 'p')
-        return PROJECT;
-    else if (arg[1] != 'p')
-        return INVALID;
+    }
+    for (int i = 3; i < argc && argv[i - 1][0] == '-'; i++) {
+        switch (argv[i - 1][1]) {
+        case 'p':
+            return PROJECT;
+        case 'a':
+            return AMEND;
+        }
+    }
     return NORMAL;
 }
 
