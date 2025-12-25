@@ -1,5 +1,3 @@
-#set page(height: auto)
-
 = Direy
 To help with context switching
 
