@@ -1,7 +1,7 @@
-= Direy
+# Direy
 To help with context switching
 
-== Purpose
+## Purpose
 1. Make context switching _easy_
     - The system tracks intent from day to day. 
     - Easy to look back at exactly what was going through your head yesterday
