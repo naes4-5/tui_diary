@@ -10,33 +10,33 @@ To help with context switching
 
 2. Complete functionality 
 
+Makes a new note with the current date with the inputted text
 ```bash
 direy write "started implementing feature {x}"
 ```
-Makes a new note with the current date with the inputted text
 
+Amends the message to the last note from a normal write command
 ```bash
 diery write -a "amending to previous message"
 ```
-Amends the message to the last note from a normal write command
 
+Goals/notes for the entire project
 ```bash
 direy write -p "Goal: Help with context switching"
 ```
-Goals/notes for the entire project
 
+Outputs the most recent note
 ```bash
 direy read
 ```
-Outputs the most recent note
 
+Outputs the nth note ago (so if n were one, has the same functionality as 'direy read')
 ```bash
 direy read -d n
 ```
-Outputs the nth note ago (so if n were one, has the same functionality as 'direy read')
 
+Outputs the notes for the project 
 ```bash
 direy read -p 
 ```
-Outputs the notes for the project 
 

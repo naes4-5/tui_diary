@@ -49,7 +49,7 @@ note_t get_note_type_read(int argc, char *argv[]) {
         case 'p':
             return PROJECT;
         // Yet to be implemented
-        case 'n':
+        case 'd':
             return BACK;
         }
     }
