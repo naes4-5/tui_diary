@@ -13,27 +13,27 @@ To help with context switching
 ```bash
 direy write "started implementing feature {x}"
 ```
-Makes a new note with the current date with the inputted text \ \
+Makes a new note with the current date with the inputted text
 
 ```bash
 diery write -a "amending to previous message"
 ```
-Amends the message to the last note from a normal write command \ \
+Amends the message to the last note from a normal write command
 
 ```bash
 direy write -p "Goal: Help with context switching"
 ```
-Goals/notes for the entire project \ \
+Goals/notes for the entire project
 
 ```bash
 direy read
 ```
-Outputs the most recent note \ \
+Outputs the most recent note
 
 ```bash
 direy read -d n
 ```
-Outputs the nth note ago (so if n were one, has the same functionality as 'direy read') \ \
+Outputs the nth note ago (so if n were one, has the same functionality as 'direy read')
 
 ```bash
 direy read -p 
