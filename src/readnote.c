@@ -4,8 +4,6 @@
 #include "cltools.c"
 #include <ctype.h>
 #include <limits.h>
-#include <linux/limits.h>
-#include <stdio.h>
 
 #define BUFF_MAX 4096
 
