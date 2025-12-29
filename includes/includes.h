@@ -12,6 +12,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-typedef enum Level { PROJECT, NORMAL, AMEND, INVALID } note_t;
+typedef enum Level { PROJECT, NORMAL, AMEND, INVALID, BACK } note_t;
 typedef enum Operation { WRITE, READ, NOOP } operation;
-typedef enum ExitType { BADOPERATION = 1, BADFLAG, NOREPO, BADDIR } exit_t;
+typedef enum ExitType { NONE, BADOPERATION, BADFLAG, NOREPO, BADDIR } exit_t;

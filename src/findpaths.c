@@ -99,13 +99,15 @@ DIR *get_project_dir(const char *homePath, const char *projectname) {
     return _make_project_dir(d, projectname, path);
 }
 
-DIR *_make_project_dir(DIR *d, const char *projectname, char *path) {
+// returns the directory for the relevant project based on the projectname
+DIR *_make_project_dir(DIR *d, const char *projectname, char *pathtodiery) {
     struct dirent *entry;
     char projectpath[PATH_MAX];
-    int written =
-        snprintf(projectpath, sizeof(projectpath), "%s%s", path, projectname);
-    if (written > sizeof(projectpath) || written < 0) {
+    int w =
+        snprintf(projectpath, sizeof(projectpath), "%s%s", pathtodiery, projectname);
+    if (w > sizeof(projectpath) || w < 0) {
         perror("Can't print to path");
+        closedir(d);
         return NULL;
     }
     // check to see if it alread exists
@@ -122,12 +124,15 @@ DIR *_make_project_dir(DIR *d, const char *projectname, char *path) {
         closedir(d);
         return ret;
     }
+    closedir(d);
     // make & return the directory if not
     if (mkdir(projectpath, 0755) == -1 && errno != EEXIST) {
         perror("Error making ~/.diery/{project name}");
         return NULL;
     }
     DIR *ret = opendir(projectpath);
-    closedir(d);
+    if (!ret) {
+        return NULL;
+    }
     return ret;
 }
