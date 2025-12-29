@@ -45,8 +45,9 @@ int read_note(const char *projectpath, const char *projectname) {
 }
 
 int read_project(const char *projectpath, const char *projectname) {
+    char extension[] = ".typ";
     char finalpath[PATH_MAX];
-    int w = snprintf(finalpath, PATH_MAX, "%s%s", projectpath, projectpath);
+    int w = snprintf(finalpath, PATH_MAX, "%s%c%s%s", projectpath, '/', projectname, extension);
     if (w >= PATH_MAX || w < 0) {
         return exit_error("error snprintfing to finalptah from read_project",
                           3);

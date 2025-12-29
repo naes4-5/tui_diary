@@ -8,7 +8,7 @@
 exit_t check_env(const char *homepath, char dierypath[],
                  const char *projectname, char projectpath[],
                  const char *configpath, DIR *projectdir);
-int check_operation(int argc, char *argv[], operation op, note_t *notelevel);
+exit_t check_operation(int argc, char *argv[], operation op, note_t *notelevel);
 
 int main(int argc, char *argv[]) {
     const char *homepath = getenv("HOME");
@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
 
     operation op = get_operation(argc, argv);
     note_t notelevel;
-    int op_check = check_operation(argc, argv, op, &notelevel);
+    exit_t op_check = check_operation(argc, argv, op, &notelevel);
     if (op_check != NONE) {
         return exit_error("error parsing operation", op_check);
     }
@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
         }
     } else if (op == WRITE) {
         int noteexit =
-            make_note(projectpath, projectname, argv[argc - 1], notelevel);
+            write_note(projectpath, projectname, argv[argc - 1], notelevel);
         if (noteexit) {
             closedir(projectdir);
             return exit_error("could not make note", noteexit);
@@ -95,7 +95,7 @@ exit_t check_env(const char *homepath, char dierypath[],
 }
 
 // parses the operations for the user and ensures that they're valid.
-int check_operation(int argc, char *argv[], operation op, note_t *notelevel) {
+exit_t check_operation(int argc, char *argv[], operation op, note_t *notelevel) {
     switch (op) {
     case WRITE:
         *notelevel = get_note_type_write(argc, argv);

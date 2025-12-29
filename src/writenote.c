@@ -23,7 +23,7 @@ size_t _get_max_long_length();
 
 // returns 0 if everything went well. Makes a new note with message written in
 // it and the relevant path, indicated by notelevel
-int make_note(const char *projectpath, const char *projectname,
+int write_note(const char *projectpath, const char *projectname,
               const char *message, note_t notelevel) {
     FILE *note = _get_project_note(projectpath, projectname, notelevel);
     if (!note) {
@@ -42,7 +42,7 @@ FILE *_get_project_note(const char *projectpath, const char *projectname,
                         note_t notelevel) {
     char finalpath[PATH_MAX];
     int written;
-    const char *notename = _get_next_note_name(projectpath, projectname);
+    char *notename = _get_next_note_name(projectpath, projectname);
     if (!notename) {
         perror("Error getting the header");
         return NULL;
@@ -51,31 +51,31 @@ FILE *_get_project_note(const char *projectpath, const char *projectname,
         written = snprintf(finalpath, sizeof(finalpath), "%s%s%s%s",
                            projectpath, "/", projectname, ".typ");
         if (written >= sizeof(finalpath) || written < 0) {
-            free((void *)notename);
+            free(notename);
             return NULL;
         }
         FILE *file = fopen(finalpath, "a");
         if (!file) {
             perror("Error opening file for note");
-            free((void *)notename);
+            free(notename);
             return NULL;
         }
-        free((void *)notename);
+        free(notename);
         return file;
     }
     written = snprintf(finalpath, sizeof(finalpath), "%s%s%s", projectpath, "/",
                        notename);
     if (written >= sizeof(finalpath) || written < 0) {
-        free((void *)notename);
+        free(notename);
         return NULL;
     }
     FILE *file = fopen(finalpath, "w");
     if (!file) {
         perror("Error opening file for note");
-        free((void *)notename);
+        free(notename);
         return NULL;
     }
-    free((void *)notename);
+    free(notename);
     return file;
 }
 

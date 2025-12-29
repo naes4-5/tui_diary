@@ -44,7 +44,7 @@ note_t get_note_type_read(int argc, char *argv[]) {
     if (argc < 3) {
         return NORMAL;
     }
-    for (int i = 3; i < argc && argv[i - 1][0] == '-'; i++) {
+    for (int i = 3; i <= argc && argv[i - 1][0] == '-'; i++) {
         switch (argv[i - 1][1]) {
         case 'p':
             return PROJECT;
