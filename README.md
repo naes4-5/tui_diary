@@ -10,7 +10,7 @@ To help with context switching
 
 2. Complete functionality 
 
-Makes a new note with the current date with the inputted text
+Makes a new note with the inputted text
 ```bash
 direy write "started implementing feature {x}"
 ```

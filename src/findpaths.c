@@ -1,5 +1,7 @@
+#include "../include/findpaths.h"
 #include <dirent.h>
 #include <errno.h>
+#include <linux/limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,13 +9,13 @@
 
 // returns the path to the config for diery
 char *config_path() {
-    static char path[512];
+    static char path[PATH_MAX];
 
     // Check for defaunt config
     const char *xdg = getenv("XDG_CONFIG_HOME");
     if (xdg) {
-        int written = snprintf(path, sizeof(path), "%s/direy/config", xdg);
-        if (written > sizeof(path) || written < 0) {
+        int w = snprintf(path, sizeof(path), "%s/direy/config", xdg);
+        if (w > PATH_MAX || w < 0) {
             return NULL;
         }
         return path;
@@ -22,9 +24,9 @@ char *config_path() {
     // Check for backup config
     const char *home = getenv("HOME");
     if (home) {
-        int written =
+        int w =
             snprintf(path, sizeof(path), "%s/.config/direy/config", home);
-        if (written > sizeof(path) || written < 0) {
+        if (w > PATH_MAX || w < 0) {
             return NULL;
         }
         return path;
@@ -36,6 +38,7 @@ char *config_path() {
 }
 
 // returns the name attatched to the local git repo
+#define PROJECT_MAX 512
 char *get_project_name() {
     FILE *fp = popen("git config --get remote.origin.url", "r");
     if (!fp)
@@ -58,10 +61,10 @@ char *get_project_name() {
     if (!last_slash)
         return NULL;
 
-    static char project_name[512];
-    int written =
+    static char project_name[PROJECT_MAX];
+    int w =
         snprintf(project_name, sizeof(project_name), "%s", last_slash + 1);
-    if (written >= sizeof(project_name) || written < 0) {
+    if (w >= PROJECT_MAX || w < 0) {
         return NULL;
     }
 
@@ -73,8 +76,6 @@ char *get_project_name() {
     return project_name;
 }
 
-DIR *_make_project_dir(DIR *d, const char *projectname, char *path);
-
 // returns the path to the directory relevant to the project
 DIR *get_project_dir(const char *homePath, const char *projectname) {
     if (!homePath || !projectname) {
@@ -82,8 +83,8 @@ DIR *get_project_dir(const char *homePath, const char *projectname) {
     }
     static char path[PATH_MAX];
 
-    int written = snprintf(path, sizeof(path), "%s/.diery/", homePath);
-    if (written > sizeof(path) || written < 0) {
+    int w = snprintf(path, sizeof(path), "%s/.diery/", homePath);
+    if (w > PATH_MAX || w < 0) {
         return NULL;
     }
 
@@ -105,7 +106,7 @@ DIR *_make_project_dir(DIR *d, const char *projectname, char *pathtodiery) {
     char projectpath[PATH_MAX];
     int w =
         snprintf(projectpath, sizeof(projectpath), "%s%s", pathtodiery, projectname);
-    if (w > sizeof(projectpath) || w < 0) {
+    if (w > PATH_MAX || w < 0) {
         perror("Can't print to path");
         closedir(d);
         return NULL;

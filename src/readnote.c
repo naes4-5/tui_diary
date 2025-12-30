@@ -1,21 +1,16 @@
-#pragma once
-
-#include "../includes/includes.h"
-#include "cltools.c"
-#include <ctype.h>
+#include "../include/readnote.h"
+#include "../include/cltools.h"
+#include "../include/readwriteutils.h"
 #include <limits.h>
+#include <stdlib.h>
 
 #define BUFF_MAX 4096
 
-long _get_last_entry_number(const char *projectpath, const char *projectname);
-size_t _get_max_long_length();
-int print_note(FILE *note);
-
-int read_note(const char *projectpath, const char *projectname) {
+int read_note(const char *projectpath) {
     char extension[] = ".typ";
-    long entrynum = _get_last_entry_number(projectpath, projectname);
-    size_t notename_s = sizeof('#') + _get_max_long_length() +
-                        sizeof(*extension) + sizeof('\0');
+    long entrynum = _get_last_entry_number(projectpath);
+    int notename_s = sizeof('#') + _get_max_long_length() + sizeof(extension) +
+                     sizeof('\0');
     char *notename = malloc(notename_s);
     if (!notename) {
         return exit_error("error mallocing from read_note", 1);
@@ -26,14 +21,14 @@ int read_note(const char *projectpath, const char *projectname) {
         free(notename);
         return exit_error("error snprintfing to notename from read_note", 2);
     }
-    
+
     char finalpath[PATH_MAX];
     w = snprintf(finalpath, PATH_MAX, "%s%c%s", projectpath, '/', notename);
     free(notename);
     if (w >= PATH_MAX || w < 0) {
         return exit_error("error snprintfing to finalpath from read_note", 3);
     }
-    
+
     FILE *note = fopen(finalpath, "r");
     if (!note) {
         perror("error opening note to read");
@@ -47,7 +42,8 @@ int read_note(const char *projectpath, const char *projectname) {
 int read_project(const char *projectpath, const char *projectname) {
     char extension[] = ".typ";
     char finalpath[PATH_MAX];
-    int w = snprintf(finalpath, PATH_MAX, "%s%c%s%s", projectpath, '/', projectname, extension);
+    int w = snprintf(finalpath, PATH_MAX, "%s%c%s%s", projectpath, '/',
+                     projectname, extension);
     if (w >= PATH_MAX || w < 0) {
         return exit_error("error snprintfing to finalptah from read_project",
                           3);
@@ -59,59 +55,5 @@ int read_project(const char *projectpath, const char *projectname) {
     }
     print_note(projectnote);
     fclose(projectnote);
-    return 0;
-}
-
-// returns the next number based on previous entries for the project in
-// projectpath
-long _get_last_entry_number(const char *projectpath, const char *projectname) {
-    DIR *projectdir = opendir(projectpath);
-    if (!projectdir) {
-        perror("error opening project directory");
-        return -1;
-    }
-    struct dirent *entry;
-    long max = 0;
-    while ((entry = readdir(projectdir)) != NULL) {
-        if (strstr(entry->d_name, "#") == NULL)
-            continue;
-        char c;
-        char nums[256] = {0};
-        int j = 0;
-        for (int i = 1; (c = entry->d_name[i]) != '\0'; i++) {
-            if (isdigit(c)) {
-                nums[j++] = c;
-                continue;
-            }
-            if (c == '.') {
-                break;
-            }
-        }
-        long conv = atoi(nums);
-        if (conv > max) {
-            max = conv;
-        }
-    }
-    closedir(projectdir);
-    return max;
-}
-
-// returns the number of bytes needed to store LONG_MAX in a string
-size_t _get_max_long_length() {
-    int ret = 0;
-    long max = LONG_MAX;
-    while (max >= 1) {
-        max /= 10;
-        ret++;
-    }
-    return ret;
-}
-
-int print_note(FILE *note) {
-    char buff[BUFF_MAX];
-    size_t bytes_read;
-    while ((bytes_read = fread(buff, 1, BUFF_MAX, note)) > 0) {
-        fwrite(buff, 1, bytes_read, stdout);
-    }
     return 0;
 }

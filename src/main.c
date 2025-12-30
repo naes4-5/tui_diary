@@ -1,14 +1,8 @@
-#include "../includes/includes.h"
-#include "cltools.c"
-#include "findpaths.c"
-#include "readnote.c"
-#include "writenote.c"
+#include "../include/cltools.h"
+#include "../include/findpaths.h"
+#include "../include/readnote.h"
+#include "../include/writenote.h"
 #include <linux/limits.h>
-
-exit_t check_env(const char *homepath, char dierypath[],
-                 const char *projectname, char projectpath[],
-                 const char *configpath, DIR *projectdir);
-exit_t check_operation(int argc, char *argv[], operation op, note_t *notelevel);
 
 int main(int argc, char *argv[]) {
     const char *homepath = getenv("HOME");
@@ -31,27 +25,40 @@ int main(int argc, char *argv[]) {
     }
 
     if (op == READ) {
-        int noteexit;
+        int noteexit = BADFLAG;
         switch (notelevel) {
         case PROJECT:
             noteexit = read_project(projectpath, projectname);
             break;
         case NORMAL:
-            noteexit = read_note(projectpath, projectname);
+            noteexit = read_note(projectpath);
             break;
         case INVALID:
         case AMEND:
         case BACK:
             closedir(projectdir);
-            return exit_error("bad operation for the read operation", BADOPERATION);
+            return exit_error("bad operation for the read operation",
+                              BADOPERATION);
         }
         if (noteexit) {
             closedir(projectdir);
             return exit_error("could not read note", noteexit);
         }
     } else if (op == WRITE) {
-        int noteexit =
-            write_note(projectpath, projectname, argv[argc - 1], notelevel);
+        int noteexit = BADFLAG;
+        switch (notelevel) {
+        case PROJECT:
+            noteexit = write_project_note(projectpath, projectname, argv[argc - 1]);
+            break;
+        case NORMAL:
+            noteexit = write_normal_note(projectpath, argv[argc - 1]);
+            break;
+        case INVALID:
+        case AMEND:
+        case BACK:
+            exit_error("invalid flag for a write operation", BADOPERATION);
+            break;
+        }
         if (noteexit) {
             closedir(projectdir);
             return exit_error("could not make note", noteexit);
@@ -60,56 +67,4 @@ int main(int argc, char *argv[]) {
 
     closedir(projectdir);
     return 0;
-}
-
-// checks all of the environment variables and ensures that they will all
-// function correctly.
-exit_t check_env(const char *homepath, char dierypath[],
-                 const char *projectname, char projectpath[],
-                 const char *configpath, DIR *projectdir) {
-    if (!homepath) {
-        return exit_error("Error opening home directory, aborting.\nTryagain.",
-                          BADDIR);
-    }
-    int written = snprintf(dierypath, PATH_MAX, "%s/.diery/", homepath);
-    if (written > PATH_MAX || written < 0) {
-        return exit_error("Error getting path to '~/.diery'.\nTry again.",
-                          BADDIR);
-    }
-    if (!projectname) {
-        return exit_error("No git repository found, aborting", NOREPO);
-    }
-    written = snprintf(projectpath, PATH_MAX, "%s%s", dierypath, projectname);
-    if (written > PATH_MAX || written < 0) {
-        return exit_error("Error getting path to '~/.diery'.\nTry again.",
-                          BADDIR);
-    }
-    if (!configpath) {
-        return exit_error("Failed to open configuration", BADDIR);
-    }
-    if (!projectdir) {
-        return exit_error("Directory faileld to open, aborting.\nTry again.",
-                          BADDIR);
-    }
-    return NONE;
-}
-
-// parses the operations for the user and ensures that they're valid.
-exit_t check_operation(int argc, char *argv[], operation op, note_t *notelevel) {
-    switch (op) {
-    case WRITE:
-        *notelevel = get_note_type_write(argc, argv);
-        break;
-    case READ:
-        *notelevel = get_note_type_read(argc, argv);
-        break;
-    case NOOP:
-        return exit_error("Must have an operation:\nread\nwrite", BADOPERATION);
-        break;
-    }
-    if (*notelevel == INVALID) {
-        return exit_error("Flag must be valid:\n-p -> project level note",
-                          BADFLAG);
-    }
-    return NONE;
 }

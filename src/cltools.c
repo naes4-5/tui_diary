@@ -1,16 +1,15 @@
-#pragma once
+#include "../include/cltools.h"
+#include <string.h>
 
-#include "../includes/includes.h"
-
-// returns toPrint but red when printed
-static char *red_error(const char *toPrint) {
+// returns to_print but red when printed
+static char *red_error(const char *to_print) {
     const char *prefix = "\x1b[31m";
     const char *suffix = "\x1b[0m";
-    size_t len = strlen(prefix) + strlen(toPrint) + strlen(suffix) + 1;
+    size_t len = strlen(prefix) + strlen(to_print) + strlen(suffix) + 1;
     char *finalMessage = malloc(len);
     if (!finalMessage)
         return NULL;
-    snprintf(finalMessage, len, "%s%s%s", prefix, toPrint, suffix);
+    snprintf(finalMessage, len, "%s%s%s", prefix, to_print, suffix);
     return finalMessage;
 }
 
@@ -65,4 +64,56 @@ operation get_operation(int argc, char *argv[]) {
     if (!strcmp(argv[1], "read"))
         return READ;
     return NOOP;
+}
+
+// checks all of the environment variables and ensures that they will all
+// function correctly.
+exit_t check_env(const char *homepath, char dierypath[],
+                 const char *projectname, char projectpath[],
+                 const char *configpath, DIR *projectdir) {
+    if (!homepath) {
+        return exit_error("Error opening home directory, aborting.\nTryagain.",
+                          BADDIR);
+    }
+    int written = snprintf(dierypath, PATH_MAX, "%s/.diery/", homepath);
+    if (written > PATH_MAX || written < 0) {
+        return exit_error("Error getting path to '~/.diery'.\nTry again.",
+                          BADDIR);
+    }
+    if (!projectname) {
+        return exit_error("No git repository found, aborting", NOREPO);
+    }
+    written = snprintf(projectpath, PATH_MAX, "%s%s", dierypath, projectname);
+    if (written > PATH_MAX || written < 0) {
+        return exit_error("Error getting path to '~/.diery'.\nTry again.",
+                          BADDIR);
+    }
+    if (!configpath) {
+        return exit_error("Failed to open configuration", BADDIR);
+    }
+    if (!projectdir) {
+        return exit_error("Directory faileld to open, aborting.\nTry again.",
+                          BADDIR);
+    }
+    return NONE;
+}
+
+// parses the operations for the user and ensures that they're valid.
+exit_t check_operation(int argc, char *argv[], operation op, note_t *notelevel) {
+    switch (op) {
+    case WRITE:
+        *notelevel = get_note_type_write(argc, argv);
+        break;
+    case READ:
+        *notelevel = get_note_type_read(argc, argv);
+        break;
+    case NOOP:
+        return exit_error("Must have an operation:\nread\nwrite", BADOPERATION);
+        break;
+    }
+    if (*notelevel == INVALID) {
+        return exit_error("Flag must be valid:\n-p -> project level note",
+                          BADFLAG);
+    }
+    return NONE;
 }
