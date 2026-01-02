@@ -2,9 +2,9 @@ CC = gcc
 CFLAGS = -I include -fsanitize=address -Werror -Wall -Wextra
 SRCDIR = src
 BUILDDIR = build
-SOURCES = $(SRCDIR)/main.c $(SRCDIR)/cltools.c $(SRCDIR)/findpaths.c $(SRCDIR)/readnote.c $(SRCDIR)/readwriteutils.c $(SRCDIR)/writenote.c
+SOURCES = $(wildcard $(SRCDIR)/*.c)
 OBJECTS = $(SOURCES:$(SRCDIR)/%.c=$(BUILDDIR)/%.o)
-TARGET = $(BUILDDIR)/main
+TARGET = $(BUILDDIR)/diery
 
 all: $(TARGET)
 
