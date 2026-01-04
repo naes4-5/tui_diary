@@ -3,6 +3,7 @@
 #include <linux/limits.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 // returns 0 if everything went well.
 int write_project_note(const char *projectpath, const char *projectname,
@@ -57,4 +58,28 @@ FILE *_get_next_normal_note(const char *projectpath) {
     }
     free(notename);
     return file;
+}
+
+int write_from_file(const char *projectpath, const char *filename) {
+    FILE *note = fopen(filename, "r");
+    if (!note) {
+        perror("Error opening file for reading");
+        return 1;
+    }
+    char buff[BUFF_MAX];
+    size_t bytes_read;
+    while ((bytes_read = fread(buff, 1, BUFF_MAX, note)) > 0) {}
+    fclose(note);
+    if (buff[strlen(buff) - 1] == '\n') {
+        buff[strlen(buff) - 1] = '\0';
+    }
+    int messlen = strlen(buff) + sizeof('\0');
+    char *message = malloc(messlen);
+    int w = snprintf(message, messlen, "%s", buff);
+    if (w >= messlen || w < 0) {
+        return 2;
+    }
+    int ret = write_normal_note(projectpath, message);
+    free(message);
+    return ret;
 }

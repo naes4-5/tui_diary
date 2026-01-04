@@ -33,6 +33,7 @@ int main(int argc, char *argv[]) {
         case NORMAL:
             noteexit = read_note(projectpath);
             break;
+        case FFILE:
         case INVALID:
         case AMEND:
         case BACK:
@@ -48,10 +49,14 @@ int main(int argc, char *argv[]) {
         int noteexit = BADFLAG;
         switch (notelevel) {
         case PROJECT:
-            noteexit = write_project_note(projectpath, projectname, argv[argc - 1]);
+            noteexit =
+                write_project_note(projectpath, projectname, argv[argc - 1]);
             break;
         case NORMAL:
             noteexit = write_normal_note(projectpath, argv[argc - 1]);
+            break;
+        case FFILE:
+            noteexit = write_from_file(projectpath, argv[argc - 1]);
             break;
         case INVALID:
         case AMEND:

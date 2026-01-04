@@ -33,8 +33,11 @@ note_t get_note_type_write(int argc, char *argv[]) {
         // Yet to be implemented
         case 'a':
             return AMEND;
+        case 'f':
+            return FFILE;
         }
     }
+    printf("WE HAVE A NORMAL\n");
     return NORMAL;
 }
 
@@ -99,7 +102,8 @@ exit_t check_env(const char *homepath, char dierypath[],
 }
 
 // parses the operations for the user and ensures that they're valid.
-exit_t check_operation(int argc, char *argv[], operation op, note_t *notelevel) {
+exit_t check_operation(int argc, char *argv[], operation op,
+                       note_t *notelevel) {
     switch (op) {
     case WRITE:
         *notelevel = get_note_type_write(argc, argv);
