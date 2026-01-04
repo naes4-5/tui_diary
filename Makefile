@@ -1,3 +1,5 @@
+PREFIX ?= /usr/local
+BINDIR = $(PREFIX)/bin
 CC = gcc
 CFLAGS = -I include -fsanitize=address -Werror -Wall -Wextra
 SRCDIR = src
@@ -19,5 +21,12 @@ $(BUILDDIR):
 
 clean:
 	rm -rf $(BUILDDIR)
+	
+install: $(TARGET)
+	install -d $(BINDIR)
+	install -m 755 $(TARGET) $(BINDIR)/diery
 
-.PHONY: all clean
+uninstall:
+	rm -f $(BINDIR)/diery
+
+.PHONY: install uninstall clean all
