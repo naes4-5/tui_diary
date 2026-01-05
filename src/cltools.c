@@ -37,7 +37,6 @@ note_t get_note_type_write(int argc, char *argv[]) {
             return FFILE;
         }
     }
-    printf("WE HAVE A NORMAL\n");
     return NORMAL;
 }
 
